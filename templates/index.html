@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Submit Flag — CTF{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="text-center mb-12 animate-fade-in-up">
+        <div
+            class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 rounded-full text-emerald-600 text-sm mb-4 border border-emerald-100">
+            <i data-lucide="flag" class="w-4 h-4"></i>
+            <span>CTF Challenge</span>
+        </div>
+        <h1 class="font-display text-4xl lg:text-5xl font-bold text-gray-800 mb-4">Flag Verification</h1>
+        <p class="text-gray-500 max-w-xl mx-auto">Submit a flag you've discovered. All flags follow the format: <code
+                class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">chan{...}</code> or <code
+                class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">CTF{...}</code></p>
+        <p class="text-gray-400 text-sm mt-2">Sign in via GitHub to track your score! There are 4 challenges to solve.</p>
+    </div>
+
+    <!-- Flag Input Form -->
+    <form method="POST" action="/" class="animate-fade-in-up" style="animation-delay: 0.1s">
+        <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-md transition-all duration-300">
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <i data-lucide="key" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-gray-800 font-semibold text-lg">Enter Your Flag</h3>
+                    <p class="text-gray-400 text-xs">Paste the flag you found below</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <input type="text" name="flag" placeholder="chan{...}" value="{{ result.input if result else '' }}"
+                    class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all duration-300 text-lg font-mono"
+                    autocomplete="off">
+                <button type="submit"
+                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Result -->
+    {% if result %}
+    <div class="mt-8 animate-fade-in-up">
+        {% if result.correct %}
+        <div class="bg-white rounded-3xl shadow-lg border border-emerald-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-white text-center">
+                <div class="text-4xl mb-2">🎉</div>
+                <h2 class="font-display text-2xl font-bold">Flag {{ result.flag_num }} — Correct!</h2>
+                {% if result.get('already_found') %}
+                <p class="text-emerald-100 text-sm mt-1">You already found this flag — no additional points.</p>
+                {% elif result.get('points_awarded') %}
+                <p class="text-emerald-100 text-sm mt-1">+100 points awarded!</p>
+                {% endif %}
+            </div>
+            <div class="p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-medium">Vulnerability Type</p>
+                        <p class="text-gray-800 font-semibold">{{ result.category }}</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-5 mb-4">
+                    <p class="text-gray-600 leading-relaxed text-sm">{{ result.description }}</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 flex-shrink-0"></i>
+                    <code class="text-emerald-700 font-mono text-sm break-all">{{ result.input }}</code>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="x-circle" class="w-5 h-5 text-red-500"></i>
+                </div>
+                <div>
+                    <p class="text-red-600 font-semibold">Incorrect Flag</p>
+                    <p class="text-gray-400 text-sm">That's not a valid flag. Keep looking!</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Progress Tracker -->
+    <div class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up"
+        style="animation-delay: 0.2s">
+        <h3 class="text-gray-700 font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-4 h-4"></i> Challenge Progress
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- CTF1 -->
+            <div class="text-center p-4 rounded-xl border transition-all duration-300 {% if 1 in found_flags %}bg-red-500 text-white border-red-400 shadow-lg shadow-red-200/50 scale-105{% else %}bg-red-50/50 text-gray-700 border-red-100/50 opacity-60{% endif %}">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-sm {% if 1 in found_flags %}bg-white text-red-500{% else %}bg-gradient-to-br from-red-400 to-orange-500 text-white{% endif %}">
+                    {% if 1 in found_flags %}<i data-lucide="check" class="w-6 h-6"></i>{% else %}1{% endif %}
+                </div>
+                <p class="text-xs font-semibold {% if 1 in found_flags %}text-white{% else %}text-gray-700{% endif %}">CTF1</p>
+                <p class="text-[10px] {% if 1 in found_flags %}text-red-100{% else %}text-gray-400{% endif %}">Path Traversal</p>
+            </div>
+
+            <!-- CTF2 -->
+            <div class="text-center p-4 rounded-xl border transition-all duration-300 {% if 2 in found_flags %}bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-200/50 scale-105{% else %}bg-emerald-50/50 text-gray-700 border-emerald-100/50 opacity-60{% endif %}">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-sm {% if 2 in found_flags %}bg-white text-emerald-500{% else %}bg-gradient-to-br from-emerald-400 to-teal-500 text-white{% endif %}">
+                    {% if 2 in found_flags %}<i data-lucide="check" class="w-6 h-6"></i>{% else %}2{% endif %}
+                </div>
+                <p class="text-xs font-semibold {% if 2 in found_flags %}text-white{% else %}text-gray-700{% endif %}">CTF2</p>
+                <p class="text-[10px] {% if 2 in found_flags %}text-emerald-100{% else %}text-gray-400{% endif %}">Cookie Analysis</p>
+            </div>
+
+            <!-- CTF3 -->
+            <div class="text-center p-4 rounded-xl border transition-all duration-300 {% if 3 in found_flags %}bg-cyan-500 text-white border-cyan-400 shadow-lg shadow-cyan-200/50 scale-105{% else %}bg-cyan-50/50 text-gray-700 border-cyan-100/50 opacity-60{% endif %}">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-sm {% if 3 in found_flags %}bg-white text-cyan-500{% else %}bg-gradient-to-br from-cyan-400 to-blue-500 text-white{% endif %}">
+                    {% if 3 in found_flags %}<i data-lucide="check" class="w-6 h-6"></i>{% else %}3{% endif %}
+                </div>
+                <p class="text-xs font-semibold {% if 3 in found_flags %}text-white{% else %}text-gray-700{% endif %}">CTF3</p>
+                <p class="text-[10px] {% if 3 in found_flags %}text-cyan-100{% else %}text-gray-400{% endif %}">PCAP Analysis</p>
+            </div>
+
+            <!-- CTF4 -->
+            <div class="text-center p-4 rounded-xl border transition-all duration-300 {% if 4 in found_flags %}bg-purple-500 text-white border-purple-400 shadow-lg shadow-purple-200/50 scale-105{% else %}bg-purple-50/50 text-gray-700 border-purple-100/50 opacity-60{% endif %}">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold text-sm {% if 4 in found_flags %}bg-white text-purple-500{% else %}bg-gradient-to-br from-purple-400 to-indigo-500 text-white{% endif %}">
+                    {% if 4 in found_flags %}<i data-lucide="check" class="w-6 h-6"></i>{% else %}4{% endif %}
+                </div>
+                <p class="text-xs font-semibold {% if 4 in found_flags %}text-white{% else %}text-gray-700{% endif %}">CTF4</p>
+                <p class="text-[10px] {% if 4 in found_flags %}text-purple-100{% else %}text-gray-400{% endif %}">PostgreSQL Exploitation</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>lucide.createIcons();</script>{% endblock %}
